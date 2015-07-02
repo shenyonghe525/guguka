@@ -1,21 +1,18 @@
-1¡¢¹Î¹Î¿¨Ğ§¹ûµÄÔ­Àí
+1ã€åˆ®åˆ®å¡æ•ˆæœçš„åŸç†
 Paint.setXferMode();
 
 
-2¡¢Ô²½ÇÍ¼Æ¬ÒÔ¼°Ô²ĞÎÍ¼Æ¬µÄÊµÏÖ
-a¡¢»æÖÆ¾ØĞÎ£¨Õı·½ĞÎ£©Í¼Æ¬
-b¡¢setXferMode(DstIn)
-c¡¢»æÖÆÎÒÃÇµÄÔ²ĞÎ
+2ã€åœ†è§’å›¾ç‰‡ä»¥åŠåœ†å½¢å›¾ç‰‡çš„å®ç°
+aã€ç»˜åˆ¶çŸ©å½¢ï¼ˆæ­£æ–¹å½¢ï¼‰å›¾ç‰‡
+bã€setXferMode(DstIn)
+cã€ç»˜åˆ¶æˆ‘ä»¬çš„åœ†å½¢
 --------------
-a¡¢»æÖÆÎÒÃÇµÄÔ²ĞÎ
-b¡¢setXferMode(SrcIn)
-c¡¢»æÖÆ¾ØĞÎ£¨Õı·½ĞÎ£©Í¼Æ¬
+aã€ç»˜åˆ¶æˆ‘ä»¬çš„åœ†å½¢
+bã€setXferMode(SrcIn)
+cã€ç»˜åˆ¶çŸ©å½¢ï¼ˆæ­£æ–¹å½¢ï¼‰å›¾ç‰‡
 
-3¡¢×Ü½á
-a¡¢Canavs Paint Path Bitmap 
-b¡¢mPaint.setXferMode()
-c¡¢×Ô¶¨ÒåÊôĞÔ
-d¡¢bitmap.getPixels
-
-
-
+3ã€æ€»ç»“
+aã€Canavs Paint Path Bitmap 
+bã€mPaint.setXferMode()
+cã€è‡ªå®šä¹‰å±æ€§
+dã€bitmap.getPixels

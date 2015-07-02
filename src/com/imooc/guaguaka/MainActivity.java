@@ -2,8 +2,6 @@ package com.imooc.guaguaka;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.Toast;
-
 import com.imooc.guaguaka.view.GuaGuaKa;
 import com.imooc.guaguaka.view.GuaGuaKa.OnGuaGuaKaCompleteListener;
 
@@ -24,13 +22,13 @@ public class MainActivity extends Activity
 					@Override
 					public void complete()
 					{
-//						Toast.makeText(getApplicationContext(), "用户已经刮得差不多了",
+//						Toast.makeText(getApplicationContext(), "锟矫伙拷锟窖撅拷锟轿得差不锟斤拷锟斤拷",
 //								Toast.LENGTH_SHORT).show();
 						//do something
 					}
 				});
 		
-		mGuaGuaKa.setText("Android新技能Get");
+		mGuaGuaKa.setText("$50000");
 	}
 
 }

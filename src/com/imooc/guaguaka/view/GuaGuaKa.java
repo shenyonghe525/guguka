@@ -22,16 +22,17 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class GuaGuaKa extends View
-{
+public class GuaGuaKa extends View {
 	private Paint mOutterPaint;
 	private Path mPath;
 	private Canvas mCanvas;
+	// 需要知道控件的宽高信息(在onMeasure中初始化)
 	private Bitmap mBitmap;
 
 	private int mLastX;
 	private int mLastY;
 
+	// 刮刮卡的浮层图片
 	private Bitmap mOutterBitmap;
 
 	// -------------------------------
@@ -42,62 +43,54 @@ public class GuaGuaKa extends View
 	private Paint mBackPaint;
 
 	/**
-	 * ��¼�ν���Ϣ�ı��Ŀ��͸�
+	 * 记录刮奖信息文本的宽和高
 	 */
 	private Rect mTextBound;
 	private int mTextSize;
 	private int mTextColor;
 
-	// �ж��ڸǲ������Ƿ������ﵽ��ֵ
+	// 判断遮盖层区域是否消除达到阈值(保证调用的适合值是最新的)
 	private volatile boolean mComplete = false;
 
 	/**
-	 * �ιο�����Ļص�
+	 * 刮刮卡刮完的回调
 	 * 
 	 * @author zhy
 	 * 
 	 */
-	public interface OnGuaGuaKaCompleteListener
-	{
+	public interface OnGuaGuaKaCompleteListener {
 		void complete();
 	}
 
 	private OnGuaGuaKaCompleteListener mListener;
 
 	public void setOnGuaGuaKaCompleteListener(
-			OnGuaGuaKaCompleteListener mListener)
-	{
+			OnGuaGuaKaCompleteListener mListener) {
 		this.mListener = mListener;
 	}
 
-	public GuaGuaKa(Context context)
-	{
+	public GuaGuaKa(Context context) {
 		this(context, null);
 	}
 
-	public GuaGuaKa(Context context, AttributeSet attrs)
-	{
+	public GuaGuaKa(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public GuaGuaKa(Context context, AttributeSet attrs, int defStyle)
-	{
+	public GuaGuaKa(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 		TypedArray a = null;
-		try
-		{
+		try {
 			a = context.getTheme().obtainStyledAttributes(attrs,
 					R.styleable.GuaGuaKa, defStyle, 0);
 
 			int n = a.getIndexCount();
 
-			for (int i = 0; i < n; i++)
-			{
+			for (int i = 0; i < n; i++) {
 				int attr = a.getIndex(i);
 
-				switch (attr)
-				{
+				switch (attr) {
 				case R.styleable.GuaGuaKa_text:
 					mText = a.getString(attr);
 					break;
@@ -114,81 +107,84 @@ public class GuaGuaKa extends View
 
 			}
 
-		} finally
-		{
+		} finally {
 			if (a != null)
 				a.recycle();
 		}
 
 	}
 
-	public void setText(String mText)
-	{
+	public void setText(String mText) {
 		this.mText = mText;
-		// ��õ�ǰ���ʻ����ı��Ŀ��͸�
+		// 获得当前画笔绘制文本的宽和高
 		mBackPaint.getTextBounds(mText, 0, mText.length(), mTextBound);
 	}
 
 	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-	{
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
 		int width = getMeasuredWidth();
 		int height = getMeasuredHeight();
-		// ��ʼ�����ǵ�bitmap
+		// 初始化我们的bitmap(获奖信息的)
 		mBitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
 		mCanvas = new Canvas(mBitmap);
 
-		// ���û���path���ʵ�һЩ����
+		// 设置绘制path画笔(橡皮擦)的一些属性
 		setupOutPaint();
+		// 设置我们绘制获奖信息的画笔属性
 		setUpBackPaint();
 
 		// mCanvas.drawColor(Color.parseColor("#c0c0c0"));
 		mCanvas.drawRoundRect(new RectF(0, 0, width, height), 30, 30,
 				mOutterPaint);
+		// 画刮刮乐的浮层图片
 		mCanvas.drawBitmap(mOutterBitmap, null, new Rect(0, 0, width, height),
 				null);
 
 	}
 
 	/**
-	 * �������ǻ��ƻ���Ϣ�Ļ�������
+	 * 设置我们绘制获奖信息的画笔属性
 	 */
-	private void setUpBackPaint()
-	{
+	private void setUpBackPaint() {
 		mBackPaint.setColor(mTextColor);
 		mBackPaint.setStyle(Style.FILL);
 		mBackPaint.setTextSize(mTextSize);
-		// ��õ�ǰ���ʻ����ı��Ŀ��͸�
+		// 获得当前画笔绘制文本的宽和高
 		mBackPaint.getTextBounds(mText, 0, mText.length(), mTextBound);
 
 	}
 
 	/**
-	 * ���û���path���ʵ�һЩ����
+	 * 设置绘制path画笔的一些属性
 	 */
-	private void setupOutPaint()
-	{
+	private void setupOutPaint() {
+		// 设置画笔的颜色
 		mOutterPaint.setColor(Color.parseColor("#c0c0c0"));
+		// 设置画笔的锯齿效果
 		mOutterPaint.setAntiAlias(true);
+		// 设定是否使用图像抖动处理，会使绘制出来的图片颜色更加平滑和饱满，图像更加清晰
 		mOutterPaint.setDither(true);
+		// 设置绘制时各图形的结合方式，如平滑效果等
 		mOutterPaint.setStrokeJoin(Paint.Join.ROUND);
+		// 当画笔样式为STROKE或FILL_OR_STROKE时，设置笔刷的图形样式，如圆形样式
+		// Cap.ROUND,或方形样式Cap.SQUARE
 		mOutterPaint.setStrokeCap(Paint.Cap.ROUND);
+		// 设置画笔的风格（空心或实心）
 		mOutterPaint.setStyle(Style.FILL);
+		// 设置空心边框的宽度
 		mOutterPaint.setStrokeWidth(20);
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent event)
-	{
+	public boolean onTouchEvent(MotionEvent event) {
 		int action = event.getAction();
 
 		int x = (int) event.getX();
 		int y = (int) event.getY();
 
-		switch (action)
-		{
+		switch (action) {
 		case MotionEvent.ACTION_DOWN:
 
 			mLastX = x;
@@ -200,8 +196,7 @@ public class GuaGuaKa extends View
 			int dx = Math.abs(x - mLastX);
 			int dy = Math.abs(y - mLastY);
 
-			if (dx > 3 || dy > 3)
-			{
+			if (dx > 3 || dy > 3) {
 				mPath.lineTo(x, y);
 			}
 
@@ -220,11 +215,9 @@ public class GuaGuaKa extends View
 
 	}
 
-	private Runnable mRunnable = new Runnable()
-	{
+	private Runnable mRunnable = new Runnable() {
 		@Override
-		public void run()
-		{
+		public void run() {
 			int w = getWidth();
 			int h = getHeight();
 
@@ -233,30 +226,25 @@ public class GuaGuaKa extends View
 			Bitmap bitmap = mBitmap;
 			int[] mPixels = new int[w * h];
 
-			// ���Bitmap�����е�������Ϣ
+			// 获得Bitmap上所有的像素信息
 			bitmap.getPixels(mPixels, 0, w, 0, 0, w, h);
 
-			for (int i = 0; i < w; i++)
-			{
-				for (int j = 0; j < h; j++)
-				{
+			for (int i = 0; i < w; i++) {
+				for (int j = 0; j < h; j++) {
 					int index = i + j * w;
-					if (mPixels[index] == 0)
-					{
+					if (mPixels[index] == 0) {
 						wipeArea++;
 					}
 				}
 			}
 
-			if (wipeArea > 0 && totalArea > 0)
-			{
+			if (wipeArea > 0 && totalArea > 0) {
 				int percent = (int) (wipeArea * 100 / totalArea);
 
 				Log.e("TAG", percent + "");
 
-				if (percent > 60)
-				{
-					// �����ͼ������
+				if (percent > 60) {
+					// 清除掉图层区域
 					mComplete = true;
 					postInvalidate();
 
@@ -268,48 +256,44 @@ public class GuaGuaKa extends View
 	};
 
 	@Override
-	protected void onDraw(Canvas canvas)
-	{
+	protected void onDraw(Canvas canvas) {
 		// canvas.drawBitmap(bitmap, 0 , 0, null);
 
 		canvas.drawText(mText, getWidth() / 2 - mTextBound.width() / 2,
 				getHeight() / 2 + mTextBound.height() / 2, mBackPaint);
 
-		if (!mComplete)
-		{
+		if (!mComplete) {
 			drawPath();
 			canvas.drawBitmap(mBitmap, 0, 0, null);
 		}
 
-		if (mComplete)
-		{
-			if (mListener != null)
-			{
+		if (mComplete) {
+			if (mListener != null) {
 				mListener.complete();
 			}
 		}
 
 	}
 
-	private void drawPath()
-	{
+	private void drawPath() {
 		mOutterPaint.setStyle(Style.STROKE);
+		// 设置两张图片相交时的模式
 		mOutterPaint.setXfermode(new PorterDuffXfermode(Mode.DST_OUT));
 		mCanvas.drawPath(mPath, mOutterPaint);
 	}
 
 	/**
-	 * ����һЩ��ʼ������
+	 * 进行一些初始化操作
 	 */
-	private void init()
-	{
+	private void init() {
 		mOutterPaint = new Paint();
 		mPath = new Path();
 		// bitmap = BitmapFactory.decodeResource(getResources(),
 		// com.imooc.guaguaka.R.drawable.t2);
+		// 设置刮刮卡的浮层图片信息
 		mOutterBitmap = BitmapFactory.decodeResource(getResources(),
 				com.imooc.guaguaka.R.drawable.fg_guaguaka);
-		mText = "лл�ݹ�";
+		mText = "谢谢惠顾";
 		mTextBound = new Rect();
 		mBackPaint = new Paint();
 		mTextSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
